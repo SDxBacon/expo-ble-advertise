@@ -4,6 +4,7 @@
   "description": "My new module",
   "main": "build/index.js",
   "types": "build/index.d.ts",
+  "packageManager": "yarn@4.6.0",
   "scripts": {
     "build": "expo-module build",
     "clean": "expo-module clean",
@@ -28,11 +29,10 @@
   "author": "SDxBacon <z141134553@gmail.com> (https://github.com/SDxBacon)",
   "license": "MIT",
   "homepage": "https://github.com/SDxBacon/expo-ble-advertise#readme",
-  "dependencies": {},
   "devDependencies": {
     "@types/react": "~18.3.12",
-    "expo-module-scripts": "^4.0.3",
     "expo": "~52.0.0",
+    "expo-module-scripts": "^4.0.3",
     "react-native": "0.76.0"
   },
   "peerDependencies": {

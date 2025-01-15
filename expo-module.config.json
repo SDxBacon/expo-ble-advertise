@@ -1,17 +1,9 @@
 {
-  "platforms": [
-    "apple",
-    "android",
-    "web"
-  ],
+  "platforms": ["apple", "android"],
   "apple": {
-    "modules": [
-      "ExpoBleAdvertiseModule"
-    ]
+    "modules": ["ExpoBleAdvertiseModule"]
   },
   "android": {
-    "modules": [
-      "com.sdxbacon.expobleadvertise.ExpoBleAdvertiseModule"
-    ]
+    "modules": ["com.sdxbacon.expobleadvertise.ExpoBleAdvertiseModule"]
   }
 }
