@@ -1,0 +1,10 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "expo-ble-advertise": ["../src/index"],
+      "expo-ble-advertise/*": ["../src/*"]
+    }
+  }
+}
