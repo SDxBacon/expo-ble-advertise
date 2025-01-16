@@ -1,48 +1,101 @@
+import CoreBluetooth
 import ExpoModulesCore
 
-public class ExpoBleAdvertiseModule: Module {
-  // Each module class must implement the definition function. The definition consists of components
-  // that describes the module's functionality and behavior.
-  // See https://docs.expo.dev/modules/module-api for more details about available components.
-  public func definition() -> ModuleDefinition {
-    // Sets the name of the module that JavaScript code will use to refer to the module. Takes a string as an argument.
-    // Can be inferred from module's class name, but it's recommended to set it explicitly for clarity.
-    // The module will be accessible from `requireNativeModule('ExpoBleAdvertise')` in JavaScript.
-    Name("ExpoBleAdvertise")
+private class ExpoBleAdvertisePeripheralManager: NSObject, CBPeripheralManagerDelegate {
+  var peripheralManager: CBPeripheralManager?
 
-    // Sets constant properties on the module. Can take a dictionary or a closure that returns a dictionary.
-    Constants([
-      "PI": Double.pi
-    ])
+  override init() {
+    super.init()
+    peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
+  }
 
-    // Defines event names that the module can send to JavaScript.
-    Events("onChange")
-
-    // Defines a JavaScript synchronous function that runs the native code on the JavaScript thread.
-    Function("hello") {
-      return "Hello world! 👋"
+  func startBroadcast(_ advertisementData: [String: Any]) {
+    guard let peripheralManager = self.peripheralManager else {
+      // TODO: handle this situation in the future
+      return
     }
 
-    // Defines a JavaScript function that always returns a Promise and whose native code
-    // is by default dispatched on the different thread than the JavaScript runtime runs on.
-    AsyncFunction("setValueAsync") { (value: String) in
-      // Send an event to JavaScript.
-      self.sendEvent("onChange", [
-        "value": value
-      ])
+    if peripheralManager.isAdvertising {
+      peripheralManager.stopAdvertising()
+      // peripheralManager.removeAllServices()
     }
 
-    // Enables the module to be used as a native view. Definition components that are accepted as part of the
-    // view definition: Prop, Events.
-    View(ExpoBleAdvertiseView.self) {
-      // Defines a setter for the `url` prop.
-      Prop("url") { (view: ExpoBleAdvertiseView, url: URL) in
-        if view.webView.url != url {
-          view.webView.load(URLRequest(url: url))
-        }
-      }
+    peripheralManager.startAdvertising(advertisementData)
+  }
 
-      Events("onLoad")
+  // Required delegate method
+  func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
+    switch peripheral.state {
+    case .poweredOn:
+      print("Bluetooth is powered on.")
+    case .poweredOff:
+      print("Bluetooth is powered off.")
+    case .resetting:
+      print("Bluetooth is resetting.")
+    case .unauthorized:
+      print("Bluetooth is unauthorized.")
+    case .unsupported:
+      print("Bluetooth is unsupported on this device.")
+    case .unknown:
+      print("Bluetooth state is unknown.")
+    @unknown default:
+      print("A new state was added that we are not handling yet.")
     }
   }
+}
+
+public class ExpoBleAdvertiseModule: Module {
+
+  private var bleAdvertise: ExpoBleAdvertisePeripheralManager!
+
+  public func definition() -> ModuleDefinition {
+    Name("ExpoBleAdvertise")
+
+    OnCreate {
+      self.bleAdvertise = ExpoBleAdvertisePeripheralManager()
+    }
+
+    OnDestroy {
+      var peripheralManager = self.bleAdvertise.peripheralManager
+      peripheralManager?.stopAdvertising()
+      peripheralManager = nil
+    }
+
+    Events("onChange")
+
+    AsyncFunction("setValueAsync") { (value: String) in
+      self.sendEvent(
+        "onChange",
+        [
+          "value": value
+        ])
+    }
+
+    AsyncFunction("broadcast") { (info: [String: Any]) in
+      guard let uuidStrings = info["serviceUUIDs"] as? [String] else {
+        throw NSError(
+          domain: "BroadcastError", code: -1,
+          userInfo: [NSLocalizedDescriptionKey: "Invalid serviceUUIDs"])
+      }
+      let serviceUUIDs = uuidStrings.map { CBUUID(string: $0) }
+
+      let dataDict = info["data"] as? [String: Int] ?? [:]
+      let sortedKeys = dataDict.keys.sorted { (a, b) in (Int(a) ?? 0) < (Int(b) ?? 0) }
+      let array = sortedKeys.compactMap { dataDict[$0] }
+
+      let service = CBMutableService(type: serviceUUIDs[0], primary: true)
+
+      let advertisementData: [String: Any] = [
+        CBAdvertisementDataServiceUUIDsKey: serviceUUIDs,
+        CBAdvertisementDataManufacturerDataKey: [0x00, 0x01, 0xff, 0xfd],
+        CBAdvertisementDataLocalNameKey: "BLE模拟器",
+      ]
+
+      self.bleAdvertise.startBroadcast(advertisementData)
+
+      // return "[broadcast] serviceUUIDs: \(serviceUUIDs), data: \(Data(bytes: array))"
+      return "[broadcast] serviceUUIDs: 99-88-11-00, data: 0"
+    }
+  }
+
 }

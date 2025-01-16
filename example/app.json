@@ -23,8 +23,13 @@
       },
       "package": "com.sdxbacon.expobleadvertise.example"
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    }
+    "plugins": [
+      [
+        "expo-dev-client",
+        {
+          "launchMode": "most-recent"
+        }
+      ]
+    ]
   }
 }
