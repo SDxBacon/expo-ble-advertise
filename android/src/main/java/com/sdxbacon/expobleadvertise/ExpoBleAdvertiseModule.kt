@@ -14,18 +14,8 @@ class ExpoBleAdvertiseModule : Module() {
     // The module will be accessible from `requireNativeModule('ExpoBleAdvertise')` in JavaScript.
     Name("ExpoBleAdvertise")
 
-    // Sets constant properties on the module. Can take a dictionary or a closure that returns a dictionary.
-    Constants(
-      "PI" to Math.PI
-    )
-
     // Defines event names that the module can send to JavaScript.
     Events("onChange")
-
-    // Defines a JavaScript synchronous function that runs the native code on the JavaScript thread.
-    Function("hello") {
-      "Hello world! 👋"
-    }
 
     // Defines a JavaScript function that always returns a Promise and whose native code
     // is by default dispatched on the different thread than the JavaScript runtime runs on.
@@ -35,16 +25,5 @@ class ExpoBleAdvertiseModule : Module() {
         "value" to value
       ))
     }
-
-    // Enables the module to be used as a native view. Definition components that are accepted as part of
-    // the view definition: Prop, Events.
-    // View(ExpoBleAdvertiseView::class) {
-    //   // Defines a setter for the `url` prop.
-    //   Prop("url") { view: ExpoBleAdvertiseView, url: URL ->
-    //     view.webView.loadUrl(url.toString())
-    //   }
-    //   // Defines an event that the view can send to JavaScript.
-    //   Events("onLoad")
-    // }
   }
 }
