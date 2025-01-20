@@ -7,12 +7,12 @@ declare class ExpoBleAdvertiseModule extends NativeModule<ExpoBleAdvertiseModule
 
   /**
    * Starts broadcasting BLE advertisements with the specified service UUIDs and data.
-   * @param info - The broadcast configuration object
-   * @param info.serviceUUIDs - Array of UUIDs for the services to advertise
-   * @param info.data - Optional byte array containing the advertisement data
+   * @param options - The broadcast configuration object
+   * @param options.serviceUUIDs - Array of UUIDs for the services to advertise
+   * @param options.data - Optional byte array containing the advertisement data
    * @returns A Promise that resolves to a string indicating the broadcast status or identifier
    */
-  startBroadcast(info: {
+  startBroadcast(options: {
     serviceUUIDs: string[];
     data: Uint8Array | undefined;
   }): Promise<string>;

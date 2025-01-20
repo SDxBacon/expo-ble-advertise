@@ -1,12 +1,42 @@
 import { useEvent } from "expo";
 import ExpoBleAdvertise from "expo-ble-advertise";
-import { Button, SafeAreaView, ScrollView, Text, View } from "react-native";
+import {
+  Button,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  View,
+  Platform,
+  PermissionsAndroid,
+} from "react-native";
 import uuid from "react-native-uuid";
 import { parse as parseToByteArray } from "uuid";
-// import * as DevClient from "expo-dev-client";
 
 function getRandomUUIDBuffer() {
-  return parseToByteArray(uuid.v4());
+  return parseToByteArray(uuid.v4()) as Uint8Array;
+}
+
+function requestLocationPermission() {
+  if (Platform.OS === "android") {
+    var permissionsRequiredToBeAccepted = [
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+    ];
+
+    if (Platform.Version >= 31) {
+      permissionsRequiredToBeAccepted.push(
+        ...[
+          PermissionsAndroid.PERMISSIONS.BLUETOOTH_ADVERTISE,
+          PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+          PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+        ]
+      );
+    }
+
+    PermissionsAndroid.requestMultiple(permissionsRequiredToBeAccepted).then(
+      (permissionRequestResult) => {}
+    );
+  }
 }
 
 export default function App() {
@@ -24,18 +54,20 @@ export default function App() {
             }}
           />
         </Group>
-        <Group name="Async functions">
+        <Group name="Start Broadcast">
           <Button
             title="Broadcast"
             onPress={async () => {
-              console.log(getRandomUUIDBuffer());
-              const value = await ExpoBleAdvertise.broadcast({
-                serviceUUIDs: [uuid.v4()],
-                data: getRandomUUIDBuffer(),
-              });
+              requestLocationPermission();
 
-              console.log("🚀 - onPress={ - value:", value);
-              await ExpoBleAdvertise.setValueAsync(value);
+              const uuids = [uuid.v4()] as string[];
+
+              console.log("🚀 - uuids:", uuids);
+              await ExpoBleAdvertise.startBroadcast({
+                serviceUUIDs: uuids,
+                data: undefined,
+              });
+              console.log("[End] - startBroadcast");
             }}
           />
         </Group>
