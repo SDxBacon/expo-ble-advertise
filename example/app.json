@@ -29,7 +29,8 @@
         {
           "launchMode": "most-recent"
         }
-      ]
+      ],
+      "react-native-ble-plx"
     ]
   }
 }

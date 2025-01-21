@@ -3557,6 +3557,7 @@ __metadata:
     expo-dev-client: "npm:~5.0.9"
     react: "npm:18.3.1"
     react-native: "npm:0.76.6"
+    react-native-ble-plx: "npm:^3.4.0"
     react-native-uuid: "npm:^2.0.3"
     typescript: "npm:^5.3.3"
     uuid: "npm:^11.0.5"
@@ -6377,6 +6378,16 @@ __metadata:
   version: 18.3.1
   resolution: "react-is@npm:18.3.1"
   checksum: 10c0/f2f1e60010c683479e74c63f96b09fb41603527cd131a9959e2aee1e5a8b0caf270b365e5ca77d4a6b18aae659b60a86150bb3979073528877029b35aecd2072
+  languageName: node
+  linkType: hard
+
+"react-native-ble-plx@npm:^3.4.0":
+  version: 3.4.0
+  resolution: "react-native-ble-plx@npm:3.4.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/3e275d238b3cdf7f2ce470ee61047585db38148c6e48c4261342c0b555021d1c795f8f03484675a602212a5f2871af8d2a21cf3f9cdde71c75fe3debe0504800
   languageName: node
   linkType: hard
 

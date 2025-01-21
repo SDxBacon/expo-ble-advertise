@@ -1,16 +1,21 @@
 import { useEvent } from "expo";
 import ExpoBleAdvertise from "expo-ble-advertise";
+import { useRef, useEffect, useState } from "react";
 import {
   Button,
   SafeAreaView,
-  ScrollView,
-  Text,
   View,
+  Text,
   Platform,
   PermissionsAndroid,
 } from "react-native";
 import uuid from "react-native-uuid";
+import { BleManager, Device } from "react-native-ble-plx";
 import { parse as parseToByteArray } from "uuid";
+
+import ScannedDeviceList from "./components/ScannedDeviceList";
+
+const SERVICE_UUID = "5566c487-6544-472e-88a4-8b90afd12e1c";
 
 function getRandomUUIDBuffer() {
   return parseToByteArray(uuid.v4()) as Uint8Array;
@@ -42,39 +47,88 @@ function requestLocationPermission() {
 export default function App() {
   const onChangePayload = useEvent(ExpoBleAdvertise, "onChange");
 
+  const manager = useRef(new BleManager()).current;
+
+  const [data, setData] = useState(new Map<string, Device>());
+  const [isPoweredOn, setIsPoweredOn] = useState(false);
+
+  function scanAndConnect() {
+    manager.startDeviceScan([SERVICE_UUID], null, (error, device) => {
+      if (error) {
+        // Handle error (scanning will be stopped automatically)
+        return;
+      }
+
+      if (device) {
+        setData((prev) => {
+          const newData = new Map(prev);
+          newData.set(device.id, device);
+          return newData;
+        });
+        console.log("Device found:", device);
+      }
+    });
+  }
+
+  useEffect(() => {
+    const subscription = manager.onStateChange((state) => {
+      if (state === "PoweredOn") {
+        setIsPoweredOn(true);
+        subscription.remove();
+      }
+    }, true);
+    return () => subscription.remove();
+  }, [manager]);
+
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.container}>
+      <View style={styles.container}>
         <Text style={styles.header}>Module API Example</Text>
-        <Group name="Async functions">
-          <Button
-            title="Set value"
-            onPress={async () => {
-              await ExpoBleAdvertise.setValueAsync("Hello from JS!");
-            }}
-          />
-        </Group>
+        {/**
+         * Start Broadcasting button section
+         */}
         <Group name="Start Broadcast">
           <Button
             title="Broadcast"
             onPress={async () => {
               requestLocationPermission();
-
               const uuids = [uuid.v4()] as string[];
-
-              console.log("🚀 - uuids:", uuids);
               await ExpoBleAdvertise.startBroadcast({
-                serviceUUIDs: uuids,
+                serviceUUIDs: [SERVICE_UUID],
                 data: undefined,
               });
-              console.log("[End] - startBroadcast");
             }}
           />
         </Group>
-        <Group name="Events">
+        {/**
+         * Broadcasting Events section
+         */}
+        <Group name="Broadcasting Events">
           <Text>{onChangePayload?.value}</Text>
         </Group>
-      </ScrollView>
+
+        {/**
+         * Start Scanning section
+         * TODO:
+         */}
+        <Group name="Start Scanning">
+          <Button
+            title="SCAN"
+            onPress={async () => {
+              if (!isPoweredOn) return;
+
+              scanAndConnect();
+            }}
+          />
+        </Group>
+        {/**
+         * Scanning Result section
+         * TODO:
+         */}
+        <Group name="Scanning Result">
+          <ScannedDeviceList data={Array.from(data.values())} />
+        </Group>
+      </View>
     </SafeAreaView>
   );
 }
