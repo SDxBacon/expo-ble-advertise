@@ -69,39 +69,25 @@ public class ExpoBleAdvertiseModule: Module {
     Events("onChange")
 
     AsyncFunction("startBroadcast") { (info: BroadcastOptions) in
+      let serviceUUIDs = info.serviceUUIDs.map { CBUUID(string: $0) }
+
+      let advertisementData: [String: Any] = [
+        CBAdvertisementDataServiceUUIDsKey: serviceUUIDs,
+        CBAdvertisementDataManufacturerDataKey: [0x00, 0x01, 0xff, 0xfd],
+      ]
+
+      self.bleAdvertise.startBroadcast(advertisementData)
+
+      // TODO: the way to return result to JS will be refactor in the future
       self.sendEvent(
         "onChange",
         [
-          "value": info.serviceUUIDs[0]
+          "value": "Advertising started, service UUID: \(serviceUUIDs[0])"
         ]
       )
+
+      return "[broadcast] serviceUUIDs: \(serviceUUIDs)"
     }
-
-    // AsyncFunction("startBroadcast") { (info: [String: Any]) in
-    //   guard let uuidStrings = info["serviceUUIDs"] as? [String] else {
-    //     throw NSError(
-    //       domain: "BroadcastError", code: -1,
-    //       userInfo: [NSLocalizedDescriptionKey: "Invalid serviceUUIDs"])
-    //   }
-    //   let serviceUUIDs = uuidStrings.map { CBUUID(string: $0) }
-
-    //   let dataDict = info["data"] as? [String: Int] ?? [:]
-    //   let sortedKeys = dataDict.keys.sorted { (a, b) in (Int(a) ?? 0) < (Int(b) ?? 0) }
-    //   let array = sortedKeys.compactMap { dataDict[$0] }
-
-    //   let service = CBMutableService(type: serviceUUIDs[0], primary: true)
-
-    //   let advertisementData: [String: Any] = [
-    //     CBAdvertisementDataServiceUUIDsKey: serviceUUIDs,
-    //     CBAdvertisementDataManufacturerDataKey: [0x00, 0x01, 0xff, 0xfd],
-    //     CBAdvertisementDataLocalNameKey: "BLE模拟器",
-    //   ]
-
-    //   self.bleAdvertise.startBroadcast(advertisementData)
-
-    //   // return "[broadcast] serviceUUIDs: \(serviceUUIDs), data: \(Data(bytes: array))"
-    //   return "[broadcast] serviceUUIDs: 99-88-11-00, data: 0"
-    // }
   }
 
 }
