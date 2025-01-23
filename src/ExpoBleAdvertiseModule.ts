@@ -3,8 +3,6 @@ import { NativeModule, requireNativeModule } from "expo";
 import { ExpoBleAdvertiseModuleEvents } from "./ExpoBleAdvertise.types";
 
 declare class ExpoBleAdvertiseModule extends NativeModule<ExpoBleAdvertiseModuleEvents> {
-  setValueAsync(value: string): Promise<void>;
-
   /**
    * Starts broadcasting BLE advertisements with the specified service UUIDs and data.
    * @param options - The broadcast configuration object

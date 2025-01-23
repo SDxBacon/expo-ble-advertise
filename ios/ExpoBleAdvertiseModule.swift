@@ -68,14 +68,6 @@ public class ExpoBleAdvertiseModule: Module {
 
     Events("onChange")
 
-    AsyncFunction("setValueAsync") { (value: String) in
-      self.sendEvent(
-        "onChange",
-        [
-          "value": value
-        ])
-    }
-
     AsyncFunction("startBroadcast") { (info: BroadcastOptions) in
       self.sendEvent(
         "onChange",
